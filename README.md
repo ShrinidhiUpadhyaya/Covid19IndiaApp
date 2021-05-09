@@ -25,5 +25,5 @@ API for the [Data](https://github.com/amodm/api-covid19-in)
 
 [Inspiration and UI](https://www.covid19india.org)
 
-[Free Icons Source](https://www.iconfinder.com/icons/314807/search_icon)
+[Free Icons Source](https://www.iconfinder.com)
  

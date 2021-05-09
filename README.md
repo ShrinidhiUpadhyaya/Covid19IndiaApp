@@ -1,2 +1,2 @@
-<img width="432" img height = "432" img x = "500" alt="Complete" src="https://user-images.githubusercontent.com/8769408/117571928-4e761a80-b0ee-11eb-895a-381b1b666a76.png">
+<p align="center"> <img width="800" height ="1000" alt="Complete"  src="https://user-images.githubusercontent.com/8769408/117572011-9ac15a80-b0ee-11eb-90d8-dca409cd329b.png"> </p>
 # CovidApp

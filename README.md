@@ -16,6 +16,11 @@
 4. Last 5days Confirmed,Recovered and Deceased count.
 5. Visual Chart of Confirmed, Recovered and Deceased counts.
 
+**Features Under Implementation:**
+1. Charts for individual states data.
+2. Charts for vaccination data.
+
+
 API for the [Data](https://github.com/amodm/api-covid19-in)
 
 [Inspiration and UI](https://www.covid19india.org)

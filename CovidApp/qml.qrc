@@ -1,0 +1,26 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>components/DBox.qml</file>
+        <file>components/DHeaderBox.qml</file>
+        <file>components/DListView.qml</file>
+        <file>components/DText.qml</file>
+        <file>components/Fonts/NexaBold.otf</file>
+        <file>screenManager/HomeScreen.qml</file>
+        <file>icons/refreshIcon.png</file>
+        <file>screenManager/StateScreen.qml</file>
+        <file>screenManager/CountryChartScreen.qml</file>
+        <file>components/DIconButton.qml</file>
+        <file>icons/chartIcon.png</file>
+        <file>components/DCustomBarChart.qml</file>
+        <file>components/DCustomLineChart.qml</file>
+        <file>components/AppThemes.qml</file>
+        <file>components/DCustomTabBar.qml</file>
+        <file>icons/hospitalIcon.png</file>
+        <file>screenManager/HospitalListScreen.qml</file>
+        <file>components/DCustomDropDown.qml</file>
+        <file>icons/browserIcon.png</file>
+        <file>screenManager/AppScreen.qml</file>
+        <file>components/DCustomDataBox.qml</file>
+    </qresource>
+</RCC>

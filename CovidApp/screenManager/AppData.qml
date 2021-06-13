@@ -12,8 +12,9 @@ Item {
     QtObject {
         id: completeData
 
-        property var totalData0:appManager.totalData[0]
-        property var overallConfirmedData:appManager.overallConfirmedData
+        property var totalData0: appManager.totalData[0]
+        property var overallConfirmedData: appManager.overallConfirmedData
+        property var dailyData: appManager.dailyData
     }
 
     QtObject {
@@ -36,6 +37,11 @@ Item {
         property var overallConfirmedData: completeData.overallConfirmedData["total"]
         property var overallRecoveredData: completeData.overallConfirmedData["recovered"]
         property var overallDeceasedData: completeData.overallConfirmedData["deceased"]
+
+        property var dailyConfirmedData: completeData.dailyData["confirmed"]
+        property var dailyRecoveredData: completeData.dailyData["recovered"]
+        property var dailyDeceasedData: completeData.dailyData["deceased"]
+        property var dailyDateData: completeData.dailyData["date"]
     }
 
     QtObject {
@@ -46,5 +52,4 @@ Item {
         property real dateChartScreen: 2
         property real statesScreen: 3
     }
-
 }

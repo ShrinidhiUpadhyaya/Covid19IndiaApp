@@ -6,6 +6,10 @@ import AppThemes 1.0
 Item {
     id: root
 
+
+    property alias rows: gridLayout.rows
+    property alias columns: gridLayout.columns
+
     property var headerTextData:[]
     property var minorTextData:[]
     property var textData:[]
@@ -18,6 +22,8 @@ Item {
     property int count: 0
 
     GridLayout {
+        id: gridLayout
+
         anchors.fill: parent
         rows: 2
         columns: 2
@@ -29,7 +35,7 @@ Item {
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 headerText: root.headerTextData[index]
-                minorText: root.minorTextData[index] === "" ? "" : "+" + root.minorTextData[index]
+                minorText: root.minorTextData[index] === undefined ? "" : "+" + root.minorTextData[index]
                 color: root.colorData[index]
                 text: root.textData[index]
                 headerT.font.pixelSize: root.headerFontSize

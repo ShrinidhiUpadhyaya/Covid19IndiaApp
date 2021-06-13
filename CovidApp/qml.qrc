@@ -6,21 +6,37 @@
         <file>components/DListView.qml</file>
         <file>components/DText.qml</file>
         <file>components/Fonts/NexaBold.otf</file>
+        <file>components/DIconButton.qml</file>
+        <file>components/DBarChart.qml</file>
+        <file>components/DLineChart.qml</file>
+        <file>components/AppThemes.qml</file>
+        <file>components/DTabBar.qml</file>
+        <file>components/DDropDown.qml</file>
+        <file>components/DDataBox.qml</file>
+        <file>components/DAxisBarChart.qml</file>
+        <file>components/DTumbler.qml</file>
+        <file>components/DCalendar.qml</file>
+        <file>components/DIconTextButton.qml</file>
+        <file>components/multiComponents/DIconTextButtons.qml</file>
+        <file>screenManager/chartScreenManager/CumalativeCharts.qml</file>
+        <file>screenManager/chartScreenManager/DailyCharts.qml</file>
+        <file>screenManager/HospitalListScreen.qml</file>
+        <file>screenManager/AppScreen.qml</file>
+        <file>screenManager/DateChartsScreen.qml</file>
+        <file>screenManager/ContentScreens.qml</file>
+        <file>screenManager/Footer.qml</file>
         <file>screenManager/HomeScreen.qml</file>
-        <file>icons/refreshIcon.png</file>
         <file>screenManager/StateScreen.qml</file>
         <file>screenManager/CountryChartScreen.qml</file>
-        <file>components/DIconButton.qml</file>
+        <file>screenManager/ErrorScreen.qml</file>
+        <file>screenManager/AppData.qml</file>
+        <file>icons/refreshIcon.png</file>
         <file>icons/chartIcon.png</file>
-        <file>components/DCustomBarChart.qml</file>
-        <file>components/DCustomLineChart.qml</file>
-        <file>components/AppThemes.qml</file>
-        <file>components/DCustomTabBar.qml</file>
         <file>icons/hospitalIcon.png</file>
-        <file>screenManager/HospitalListScreen.qml</file>
-        <file>components/DCustomDropDown.qml</file>
         <file>icons/browserIcon.png</file>
-        <file>screenManager/AppScreen.qml</file>
-        <file>components/DCustomDataBox.qml</file>
+        <file>icons/calendarIcon.png</file>
+        <file>icons/homeIcon.png</file>
+        <file>icons/maskIcon.png</file>
+        <file>components/multiComponents/DAxisBarCharts.qml</file>
     </qresource>
 </RCC>

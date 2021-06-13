@@ -2,19 +2,28 @@ import QtQuick 2.12
 import QtQuick.Layouts 1.12
 
 import AppThemes 1.0
+import AppData 1.0
 
 import "qrc:/components"
 
-Item {
+AppScreen {
     id: root
+
+    screenIndex: AppData.screenId.homeScreen
 
     ColumnLayout{
         anchors.fill: parent
 
-        Item {
-            Layout.fillHeight: false
-            Layout.preferredHeight: AppThemes.setSize(8)
+        Rectangle {
             Layout.fillWidth: true
+            Layout.preferredHeight: AppThemes.setSize(8)
+
+            DText {
+                width: parent.width - refreshIcon
+                text: "Last Updated Time: " + AppData.specificData.lastUpdatedTime
+                padding: 2
+                anchors.verticalCenter: parent.verticalCenter
+            }
 
             DIconButton {
                 id: refreshIcon
@@ -22,61 +31,24 @@ Item {
                 source: "qrc:/icons/refreshIcon.png"
                 width: height
                 height: parent.height
-                anchors.right: parent.right
-                anchors.top: parent.top
-                anchors.topMargin: AppThemes.setSize(1)
-
-                onClicked: {
+                anchors {
+                    right: parent.right
+                    top: parent.top
+                }
+                onIconClicked: {
                     appManager.refreshData();
                 }
             }
-
-            DText {
-                anchors.centerIn: parent
-                text: "Covid19 India"
-                font.pixelSize: AppThemes.setSize(7)
-                anchors.top: parent.top
-                anchors.topMargin: AppThemes.setSize(1)
-            }
-
-            DIconButton {
-                id: chartIcon
-
-                source: "qrc:/icons/chartIcon.png"
-                width: height
-                height: parent.height
-                anchors.left: parent.left
-                anchors.top: parent.top
-                anchors.topMargin: AppThemes.setSize(1)
-
-                onClicked: {
-                    appManager.sortOverallConfirmedData({});
-                    stackView.push("qrc:/screenManager/CountryChartScreen.qml");
-                }
-            }
         }
 
-        Item {
-            Layout.fillWidth: true
-            Layout.preferredHeight: lastUpdateText.height
-
-            DText {
-                id: lastUpdateText
-
-                width: parent.width
-                text: "Last Updated Time: " + appManager.totalData[0].lastUpdatedTime
-                anchors.verticalCenter: parent.verticalCenter
-            }
-        }
-
-        DCustomDataBox {
+        DDataBox {
             Layout.fillHeight: true
             Layout.fillWidth: true
             count: 4
             headerTextData: ["Confirmed", "Active", "Recovered", "Deceased"]
-            minorTextData: [appManager.totalData[0].todayConfirmedCases,"",appManager.totalData[0].todayRecoveredCases, appManager.totalData[0].todayDeceasedCases]
+            minorTextData: [AppData.specificData.todayConfirmedCases, "", AppData.specificData.todayRecoveredCases, AppData.specificData.todayDeceasedCases]
             colorData: [AppThemes.confirmedColor,AppThemes.activeColor,AppThemes.recoveredColor, AppThemes.deceasedColor]
-            textData: [appManager.totalData[0].confirmedCases,appManager.totalData[0].activeCases,appManager.totalData[0].recoveredCases,appManager.totalData[0].deceasedCases]
+            textData: [AppData.specificData.confirmedCases, AppData.specificData.activeCases, AppData.specificData.recoveredCases, AppData.specificData.deceasedCases]
         }
 
         Item {
@@ -84,7 +56,7 @@ Item {
 
             Layout.fillHeight: false
             Layout.fillWidth: true
-            Layout.preferredHeight: parent.height * 0.06
+            Layout.preferredHeight: AppThemes.setSize(12)
 
             Rectangle {
                 width: parent.width - (parent.width * 0.1)
@@ -94,19 +66,24 @@ Item {
                 radius: 4
 
                 DText {
-                    text: appManager.totalVaccineDoses;
+                    text: AppData.specificData.totalVaccineDoses;
                     color: AppThemes.vaccinationTextColor
-                    anchors.top: parent.top
-                    anchors.topMargin: parent.height * 0.1
                     font.pixelSize: AppThemes.setSize(6)
-                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors {
+                        top: parent.top
+                        topMargin: parent.height * 0.1
+                        horizontalCenter: parent.horizontalCenter
+                    }
                 }
 
                 DText {
                     text: "Vaccine Doses Administered"
                     color: AppThemes.vaccinationTextColor
-                    anchors.bottom: parent.bottom
-                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors {
+                        bottom: parent.bottom
+                        horizontalCenter: parent.horizontalCenter
+                    }
+
                     font.pixelSize: AppThemes.setSize(4)
                 }
             }
@@ -115,7 +92,7 @@ Item {
         Item {
             Layout.fillHeight: false
             Layout.fillWidth: true
-            Layout.preferredHeight: vaccinatedItem.height
+            Layout.preferredHeight: AppThemes.setSize(12)
 
             Rectangle {
                 width: parent.width - (parent.width * 0.1)
@@ -125,30 +102,36 @@ Item {
                 anchors.centerIn: parent
 
                 DText {
-                    anchors.top: parent.top
-                    anchors.topMargin: parent.height * 0.1
-                    anchors.horizontalCenter: parent.horizontalCenter
                     color: AppThemes.testDataTextColor
-                    text: "Tested " + "(" + Qt.formatDateTime(appManager.overallTestData["date"],"dd MMMM") +")"
+                    text: "Tested " + "(" + Qt.formatDateTime(AppData.specificData.overallTestData["date"],"dd MMMM") +")"
                     font.pixelSize: AppThemes.setSize(4)
+                    anchors {
+                        top: parent.top
+                        topMargin: parent.height * 0.1
+                        horizontalCenter: parent.horizontalCenter
+                    }
                 }
 
 
                 DText {
-                    anchors.bottom: parent.bottom
-                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors {
+                        bottom: parent.bottom
+                        horizontalCenter: parent.horizontalCenter
+                    }
                     color: AppThemes.testDataTextColor
                     text: appManager.overallTestData["totalTests"]
                     font.pixelSize: AppThemes.setSize(6)
                 }
 
                 DText {
-                    anchors.right: parent.right
-                    anchors.rightMargin: parent.height * 0.1
                     color: AppThemes.testDataTextColor
                     text: "Source"
                     font.underline: true
-                    anchors.verticalCenter: parent.verticalCenter
+                    anchors {
+                        right: parent.right
+                        rightMargin: parent.height * 0.1
+                        verticalCenter: parent.verticalCenter
+                    }
 
                     MouseArea {
                         anchors.fill: parent
@@ -159,7 +142,6 @@ Item {
                 }
             }
         }
-
 
         DBox {
             Layout.fillHeight: false

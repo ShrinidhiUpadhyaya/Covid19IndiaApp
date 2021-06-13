@@ -2,18 +2,21 @@ import QtQuick 2.12
 import QtQuick.Layouts 1.12
 
 import AppThemes 1.0
+import AppData 1.0
 
 import "qrc:/components"
+import "qrc:/components/multiComponents"
+import "qrc:/screenManager/chartScreenManager"
 
 AppScreen {
     id: root
 
-    property var dateData: appManager.overallConfirmedData["date"]
-    property var overallConfirmedData: appManager.overallConfirmedData["total"]
-    property var overallRecoveredData: appManager.overallConfirmedData["recovered"]
-    property var overallDeceasedData: appManager.overallConfirmedData["deceased"]
+    screenIndex: AppData.screenId.countryChartScreen
 
-    focus: true
+    property var dailyConfirmedData: appManager.dailyData["confirmed"]
+    property var dailyRecoveredData: appManager.dailyData["recovered"]
+    property var dailyDeceasedData: appManager.dailyData["deceased"]
+    property var dailyDateData: appManager.dailyData["date"]
 
     ColumnLayout {
         anchors.fill: parent
@@ -31,60 +34,75 @@ AppScreen {
             }
         }
 
-        DCustomLineChart {
-            id: confirmedChart
+        DTabBar {
+            id: mainTabBar
 
-            Layout.fillHeight: true
             Layout.fillWidth: true
-            headerText:"Confirmed"
-            valueText: "\n" + appManager.totalData[0].confirmedCases
-            textColor: AppThemes.confirmedTextColor
-            minorText: "+" + appManager.totalData[0].todayConfirmedCases
-            maxValue: 60000000
-            factor: 10000000
-            yAxisLabel: AppThemes.croreNotation
-
-            Component.onCompleted: {
-                dataSource.createLineChart(confirmedChart.series(0),root.dateData,root.overallConfirmedData);
-            }
+            Layout.fillHeight: false
+            Layout.preferredHeight: parent.height * 0.05
+            values: ["Daily", "Cumulative"]
         }
 
-        DCustomLineChart {
-            id: recoveredChart
+        DTabBar {
+            id: subDailyTabBar
 
-            Layout.fillHeight: true
             Layout.fillWidth: true
-            headerText:"Recovered"
-            valueText: "\n" + appManager.totalData[0].recoveredCases
-            backgroundColor: AppThemes.recoveredChartColor
-            textColor: AppThemes.recoveredTextColor
-            minorText:  "+" + appManager.totalData[0].todayRecoveredCases
-            maxValue: 30000000
-            factor: 10000000
-            yAxisLabel: AppThemes.croreNotation
-
-            Component.onCompleted: {
-                dataSource.createLineChart(recoveredChart.series(0),root.dateData,root.overallRecoveredData);
-            }
+            Layout.fillHeight: false
+            Layout.preferredHeight: parent.height * 0.05
+            values: ["7 Days", "30 Days", "Beginning"]
+            visible: mainTabBar.currentIndex == 0
         }
 
-        DCustomLineChart {
-            id: deceasedChart
-
+        DAxisBarCharts {
             Layout.fillHeight: true
             Layout.fillWidth: true
-            headerText:"Deceased"
-            valueText:  "\n" + appManager.totalData[0].deceasedCases
-            backgroundColor: AppThemes.deceasedChartColor
-            textColor: AppThemes.deceasedTextColor
-            minorText: "+" + appManager.totalData[0].todayDeceasedCases
-            maxValue: 900000
-            factor: 100000
-            yAxisLabel: AppThemes.lakhsNotation
+            rows: 3
+            columns: 1
+            xValues: [root.dailyConfirmedData.slice(dataSize-days,dataSize),
+                root.dailyRecoveredData.slice(dataSize-days,dataSize),
+                root.dailyDeceasedData.slice(dataSize-days,dataSize)]
 
-            Component.onCompleted: {
-                dataSource.createLineChart(deceasedChart.series(0),root.dateData,root.overallDeceasedData);
-            }
+            yValues: root.dailyDateData.slice(dataSize-days,dataSize)
+            visible: mainTabBar.currentIndex == 0 && subDailyTabBar.currentIndex === 1
+            headerTexts: ["Confirmed","Recovered","Deceased"]
+            headerTextColors: [AppThemes.confirmedTextColor,AppThemes.recoveredTextColor,AppThemes.deceasedTextColor]
+            colors:[AppThemes.vaccinationBackgroundColor,AppThemes.vaccinationBackgroundColor,AppThemes.vaccinationBackgroundColor]
+            barColors: [AppThemes.confirmedColor,AppThemes.recoveredColor,AppThemes.deceasedTextColor]
+
+            property real dataSize: root.dailyConfirmedData.length
+            property real days: 30
+        }
+
+        DAxisBarCharts {
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            rows: 3
+            columns: 1
+            xValues: [root.dailyConfirmedData.slice(dataSize-days,dataSize),
+                root.dailyRecoveredData.slice(dataSize-days,dataSize),
+                root.dailyDeceasedData.slice(dataSize-days,dataSize)]
+
+            yValues: root.dailyDateData.slice(dataSize-days,dataSize)
+            visible: mainTabBar.currentIndex == 0 && subDailyTabBar.currentIndex === 0
+            headerTexts: ["Confirmed","Recovered","Deceased"]
+            headerTextColors: [AppThemes.confirmedTextColor,AppThemes.recoveredTextColor,AppThemes.deceasedTextColor]
+            colors:[AppThemes.vaccinationBackgroundColor,AppThemes.vaccinationBackgroundColor,AppThemes.vaccinationBackgroundColor]
+            barColors: [AppThemes.confirmedColor,AppThemes.recoveredColor,AppThemes.deceasedTextColor]
+
+            property real dataSize: root.dailyConfirmedData.length
+            property real days: 7
+        }
+
+        CumalativeCharts {
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            visible: mainTabBar.currentIndex === 1
+        }
+
+        DailyCharts {
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            visible: mainTabBar.currentIndex === 0 && subDailyTabBar.currentIndex === 2
         }
     }
 }

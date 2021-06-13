@@ -9,6 +9,8 @@ import "qrc:/components"
 AppScreen {
     id: root
 
+    isOverlay: true
+
     ColumnLayout{
         width: parent.width
         height: parent.height
@@ -47,7 +49,7 @@ AppScreen {
             add: Transition {
                     SmoothedAnimation { properties: "x,y"; from: 100; duration: 1000 }
                 }
-            delegate: DCustomDropDown {
+            delegate: DDropDown {
                 width: mainListView.width
                 height: expanded ? mainListView.height * 0.3 : mainListView.height * 0.1
                 text: appManager.hospitalListData[index].name

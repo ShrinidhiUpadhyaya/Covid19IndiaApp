@@ -1,5 +1,7 @@
 import QtQuick 2.12
 
+import AppThemes 1.0
+
 Text {
     id: root
 

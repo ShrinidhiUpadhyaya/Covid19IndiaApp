@@ -1,6 +1,8 @@
 import QtQuick 2.12
 import QtQuick.Layouts 1.12
 
+import AppThemes 1.0
+
 Rectangle {
     id: root
 
@@ -57,9 +59,11 @@ Rectangle {
         id: arrowText
 
         text: ">"
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.right: parent.right
-        anchors.rightMargin:root.height / 4
+        anchors {
+            verticalCenter: parent.verticalCenter
+            right: parent.right
+            rightMargin:root.height / 4
+        }
         font.pixelSize: AppThemes.setSize(6)
     }
 

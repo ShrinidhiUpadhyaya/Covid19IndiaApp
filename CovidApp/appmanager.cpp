@@ -1,8 +1,11 @@
 #include "appmanager.h"
 
 AppManager::AppManager(QObject *parent) : QObject(parent),
-    m_netAccessMgr(new QNetworkAccessManager(this))
+    m_netAccessMgr(new QNetworkAccessManager(this)),
+    engine(new QQmlApplicationEngine(this)),
+    chartUpdate(new ChartUpdate(engine))
 {
+    showApp();
     requestStatesDaily();
     requestAllStatesVaccineData();
     requestStateData();
@@ -25,20 +28,18 @@ void AppManager::requestOverallConfirmedChart() {
 
     connect(networkReply, &QNetworkReply::finished, [=] {
         if (!networkReply->error()) {
-            qDebug() << "Successfull Response";
+            qDebug() << "(requestOverallConfirmedChart) Successfull Response";
             auto data = networkReply->readAll();
-            sortOverallConfirmedData(data);
-            setConfigError("");
-        } else {
-            setConfigError(networkReply->errorString());
+            saveFilesData(QJsonDocument::fromJson(data).object(),OVERALL_DATA_FILENAME);
             readOverallData();
+            setConfigError("");
         }
     });
 
     connect(networkReply,
             static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
             [=](QNetworkReply::NetworkError code) {
-        qDebug() << "Error connecting to the api:" << networkReply->errorString() << endl
+        qDebug() << "(requestOverallConfirmedChart) Error connecting to the api:" << networkReply->errorString() << endl
                  << "Error code:" << code;
         qDebug() << networkReply->readAll();
         setConfigError(networkReply->errorString());
@@ -59,20 +60,17 @@ void AppManager::requestAllStatesVaccineData() {
 
     connect(networkReply, &QNetworkReply::finished, [=] {
         if (!networkReply->error()) {
-            qDebug() << "Successfull Response";
+            qDebug() << "(requestAllStatesVaccineData) Successfull Response";
             auto data = networkReply->readAll();
             sortAllStatesVaccineData(data);
             setConfigError("");
-        } else {
-            setConfigError(networkReply->errorString());
-            readAllStatesVaccineData();
         }
     });
 
     connect(networkReply,
             static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
             [=](QNetworkReply::NetworkError code) {
-        qDebug() << "Error connecting to the api:" << networkReply->errorString() << endl
+        qDebug() << "(requestAllStatesVaccineData) Error connecting to the api:" << networkReply->errorString() << endl
                  << "Error code:" << code;
         qDebug() << networkReply->readAll();
         setConfigError(networkReply->errorString());
@@ -93,21 +91,18 @@ void AppManager::requestOverallTestData() {
 
     connect(networkReply, &QNetworkReply::finished, [=] {
         if (!networkReply->error()) {
-            qDebug() << "Successfull Response";
+            qDebug() << "(requestOverallTestData) Successfull Response";
             auto data = networkReply->readAll();
             saveFilesData(QJsonDocument::fromJson(data).object(),OVERALL_TEST_DATA_FILENAME);
             sortOverallTestData();
             setConfigError("");
-        } else {
-            setConfigError(networkReply->errorString());
-            sortOverallTestData();
         }
     });
 
     connect(networkReply,
             static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
             [=](QNetworkReply::NetworkError code) {
-        qDebug() << "Error connecting to the api:" << networkReply->errorString() << endl
+        qDebug() << "(requestOverallTestData) Error connecting to the api:" << networkReply->errorString() << endl
                  << "Error code:" << code;
         qDebug() << networkReply->readAll();
         setConfigError(networkReply->errorString());
@@ -128,19 +123,17 @@ void AppManager::requestHospitalsListData() {
 
     connect(networkReply, &QNetworkReply::finished, [=] {
         if (!networkReply->error()) {
-            qDebug() << "Successfull Response";
+            qDebug() << "(requestHospitalsListData) Successfull Response";
             auto data = networkReply->readAll();
             saveFilesData(QJsonDocument::fromJson(data).object(),STATE_HOSPITAL_LIST_FILENAME);
             setConfigError("");
-        } else {
-            setConfigError(networkReply->errorString());
         }
     });
 
     connect(networkReply,
             static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
             [=](QNetworkReply::NetworkError code) {
-        qDebug() << "Error connecting to the api:" << networkReply->errorString() << endl
+        qDebug() << "(requestHospitalsListData) Error connecting to the api:" << networkReply->errorString() << endl
                  << "Error code:" << code;
         qDebug() << networkReply->readAll();
         setConfigError(networkReply->errorString());
@@ -160,19 +153,17 @@ void AppManager::requestStateDistrictData() {
 
     connect(networkReply, &QNetworkReply::finished, [=] {
         if (!networkReply->error()) {
-            qDebug() << "Successfull Response";
+            qDebug() << "(requestStateDistrictData) Successfull Response";
             auto data = networkReply->readAll();
             saveFilesData(QJsonDocument::fromJson(data).object(),STATE_DISTRICT_DATA_FILENAME);
             setConfigError("");
-        } else {
-            setConfigError(networkReply->errorString());
         }
     });
 
     connect(networkReply,
             static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
             [=](QNetworkReply::NetworkError code) {
-        qDebug() << "Error connecting to the api:" << networkReply->errorString() << endl
+        qDebug() << "(requestStateDistrictData) Error connecting to the api:" << networkReply->errorString() << endl
                  << "Error code:" << code;
         qDebug() << networkReply->readAll();
         setConfigError(networkReply->errorString());
@@ -192,24 +183,22 @@ void AppManager::requestStateData() {
 
     connect(networkReply, &QNetworkReply::finished, [=] {
         if (!networkReply->error()) {
-            qDebug() << "Successfull Response";
+            qDebug() << "(requestStateData) Successfull Response";
             auto data = networkReply->readAll();
             saveFilesData(QJsonDocument::fromJson(data).object(),STATE_ACTIVE_DATA_FILENAME);
             sortSatesActiveData();
             setConfigError("");
-        } else {
-            setConfigError(networkReply->errorString());
-            sortSatesActiveData();
         }
     });
 
     connect(networkReply,
             static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
             [=](QNetworkReply::NetworkError code) {
-        qDebug() << "Error connecting to the api:" << networkReply->errorString() << endl
+        qDebug() << "(requestStateData) Error connecting to the api" << networkReply->errorString() << endl
                  << "Error code:" << code;
         qDebug() << networkReply->readAll();
         setConfigError(networkReply->errorString());
+        sortSatesActiveData();
     });
 }
 
@@ -226,19 +215,17 @@ void AppManager::requestStatesDaily() {
 
     connect(networkReply, &QNetworkReply::finished, [=] {
         if (!networkReply->error()) {
-            qDebug() << "Successfull Response";
+            qDebug() << "(requestStatesDaily) Successfull Response";
             auto data = networkReply->readAll();
             saveFilesData(QJsonDocument::fromJson(data).object(),STATE_DAILY_DATA_FILENAME);
             setConfigError("");
-        } else {
-            setConfigError(networkReply->errorString());
         }
     });
 
     connect(networkReply,
             static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
             [=](QNetworkReply::NetworkError code) {
-        qDebug() << "Error connecting to the api:" << networkReply->errorString() << endl
+        qDebug() << "(requestStatesDaily) Error connecting to the api:" << networkReply->errorString() << endl
                  << "Error code:" << code;
         qDebug() << networkReply->readAll();
         setConfigError(networkReply->errorString());

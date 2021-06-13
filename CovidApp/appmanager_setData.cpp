@@ -21,6 +21,16 @@ void AppManager::setTotalData(QJsonArray data) {
     emit totalDataChanged(m_totalData);
 }
 
+void AppManager::setDailyData(QJsonObject data) {
+    qDebug() << "Set Daily Data" << m_dailyData << data;
+
+    if (m_dailyData == data) return;
+
+    m_dailyData = data;
+
+    emit dailyDataChanged(m_dailyData);
+}
+
 void AppManager::setOverallConfirmedData(QJsonObject data) {
     qDebug() << "Set Overall Confirmed Data" << m_overallConfirmedData << data;
 

@@ -8,8 +8,10 @@
 #include <QFile>
 #include <QJsonArray>
 #include <QIODevice>
+#include <QQmlApplicationEngine>
 
 #include "config.h"
+#include "chartupdate.h"
 
 class AppManager : public QObject
 {
@@ -57,6 +59,11 @@ public:
     QJsonObject overallConfirmedData() const { return m_overallConfirmedData; }
     QJsonObject m_overallConfirmedData;
 
+    Q_PROPERTY(QJsonObject dailyData READ dailyData WRITE setDailyData NOTIFY dailyDataChanged);
+    QJsonObject m_dailyData;
+    void setDailyData(QJsonObject);
+    QJsonObject dailyData() const { return m_dailyData; }
+
     Q_PROPERTY(QJsonObject overallTestData READ overallTestData WRITE setOverallTestData NOTIFY overallTestDataChanged);
     void setOverallTestData(QJsonObject);
     QJsonObject overallTestData() const { return m_overallTestData; }
@@ -72,6 +79,11 @@ public:
     int currentStateVaccination() const { return m_currentStateVaccination; }
     int m_currentStateVaccination = 0;
 
+    Q_PROPERTY(QString configError READ configError WRITE setConfigError NOTIFY configErrorChanged);
+    void setConfigError(QString);
+    QString configError() const { return m_configError; }
+    QString m_configError;
+
     void requestStateData();
     void requestStatesDaily();
     void requestAllStatesVaccineData();
@@ -83,29 +95,36 @@ public:
     Q_INVOKABLE void sortSatesDailyData(QString);
     Q_INVOKABLE void sortStateDistrictData(QString);
     Q_INVOKABLE void getCurrentStateTotalVaccinated(QString);
-    Q_INVOKABLE void sortOverallConfirmedData(QByteArray);
+    Q_INVOKABLE void readOverallData();
     Q_INVOKABLE void searchDistrictData(QString,QString);
     Q_INVOKABLE void sortHospitalListData(QString);
     Q_INVOKABLE void refreshData();
+    Q_INVOKABLE QJsonObject getSpecificDateData(QString);
 
-    void setConfigError(QString);
     void sortSatesActiveData();
     void sortAllStatesVaccineData(QString);
     void sortTotalData(QJsonObject);
     void sortOverallTestData();
 
+    void sortDailyData(QJsonObject);
+
     void saveFilesData(QByteArray,QString);
     void saveFilesData(QJsonObject,QString);
 
     void readAllStatesVaccineData();
-    void readOverallData();
+    QByteArray readFilesData(QString);
+
+    void loadAppData(bool);
+    void showApp();
 
     QNetworkAccessManager* m_netAccessMgr;
-    QString m_configError;
+    QQmlApplicationEngine* engine;
+    ChartUpdate *chartUpdate;
 
 signals:
     void configErrorChanged(QString);
     void totalDataChanged(QJsonArray);
+    void dailyDataChanged(QJsonObject);
     void statesActiveDataChanged(QJsonArray);
     void statesDataChanged(QJsonArray);
     void currentStatesDataChanged(QJsonArray);

@@ -3,27 +3,26 @@
 void AppManager::searchDistrictData(QString state,QString district) {
     qDebug() << "Search Current District Data";
 
-    QFile file(QString("%1%2").arg(BASE_DIR,STATE_DISTRICT_DATA_FILENAME));
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
     QJsonParseError JsonParseError;
-    QJsonObject configData = QJsonDocument::fromJson(file.readAll(), &JsonParseError).object();
-    file.close();
+    QJsonObject configData = QJsonDocument::fromJson(readFilesData(STATE_DISTRICT_DATA_FILENAME), &JsonParseError).object();
 
-    QJsonObject stateObject = configData[state].toObject()["districtData"].toObject();
-    QJsonObject districtObject = stateObject[district].toObject();
-    QJsonObject finalData;
-    finalData.insert("active",districtObject["active"].toInt());
-    finalData.insert("confirmed",districtObject["confirmed"].toInt());
-    finalData.insert("recovered",districtObject["recovered"].toInt());
-    finalData.insert("deceased",districtObject["deceased"].toInt());
+    if(!configData.isEmpty()) {
+        QJsonObject stateObject = configData[state].toObject()["districtData"].toObject();
+        QJsonObject districtObject = stateObject[district].toObject();
+        QJsonObject finalData;
+        finalData.insert("active",districtObject["active"].toInt());
+        finalData.insert("confirmed",districtObject["confirmed"].toInt());
+        finalData.insert("recovered",districtObject["recovered"].toInt());
+        finalData.insert("deceased",districtObject["deceased"].toInt());
 
-    QJsonObject deltaData = districtObject["delta"].toObject();
+        QJsonObject deltaData = districtObject["delta"].toObject();
 
-    finalData.insert("deltaConfirmed",deltaData["confirmed"].toInt());
-    finalData.insert("deltaRecovered",deltaData["recovered"].toInt());
-    finalData.insert("deltaDeceased",deltaData["deceased"].toInt());
+        finalData.insert("deltaConfirmed",deltaData["confirmed"].toInt());
+        finalData.insert("deltaRecovered",deltaData["recovered"].toInt());
+        finalData.insert("deltaDeceased",deltaData["deceased"].toInt());
 
-    setCurrentDistrictData(finalData);
+        setCurrentDistrictData(finalData);
+    }
 }
 
 void AppManager::sortAllStatesVaccineData(QString data) {
@@ -61,29 +60,27 @@ void AppManager::sortAllStatesVaccineData(QString data) {
 void AppManager::sortHospitalListData(QString state) {
     qDebug() << "Sort Hospital List Data";
 
-    QFile file(QString("%1%2").arg(BASE_DIR,STATE_HOSPITAL_LIST_FILENAME));
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
     QJsonParseError JsonParseError;
-    QJsonArray configData = QJsonDocument::fromJson(file.readAll(), &JsonParseError).object()["data"].toObject()["medicalColleges"].toArray();
-    file.close();
-
+    QJsonArray configData = QJsonDocument::fromJson(readFilesData(STATE_HOSPITAL_LIST_FILENAME), &JsonParseError).object()["data"].toObject()["medicalColleges"].toArray();
     QJsonObject tempData;
     QJsonArray finalData;
 
-    for(int i=0;i<configData.size()-1;i++) {
-        QJsonObject data = configData[i].toObject();
+    if(!configData.isEmpty()) {
+        for(int i=0;i<configData.size()-1;i++) {
+            QJsonObject data = configData[i].toObject();
 
-        if(state == data["state"].toString()) {
-            tempData.insert("name",data["name"]);
-            tempData.insert("city",data["city"]);
-            tempData.insert("ownership",data["ownership"]);
-            tempData.insert("admissionCapacity",data["admissionCapacity"]);
-            tempData.insert("hospitalBeds",data["hospitalBeds"]);
-            finalData.append(tempData);
+            if(state == data["state"].toString()) {
+                tempData.insert("name",data["name"]);
+                tempData.insert("city",data["city"]);
+                tempData.insert("ownership",data["ownership"]);
+                tempData.insert("admissionCapacity",data["admissionCapacity"]);
+                tempData.insert("hospitalBeds",data["hospitalBeds"]);
+                finalData.append(tempData);
+            }
         }
-    }
 
-    setHospitalListData(finalData);
+        setHospitalListData(finalData);
+    }
 }
 
 void AppManager::sortTotalData(QJsonObject data) {
@@ -96,11 +93,9 @@ void AppManager::sortTotalData(QJsonObject data) {
     dataObj.insert("recoveredCases",data["recovered"]);
     dataObj.insert("deceasedCases",data["deaths"]);
     dataObj.insert("activeCases",data["active"]);
-
     dataObj.insert("todayConfirmedCases",data["deltaconfirmed"]);
     dataObj.insert("todayRecoveredCases",data["deltarecovered"]);
     dataObj.insert("todayDeceasedCases",data["deltadeaths"]);
-
     dataObj.insert("lastUpdatedTime",data["lastupdatedtime"]);
 
     finalData.append(dataObj);
@@ -108,12 +103,13 @@ void AppManager::sortTotalData(QJsonObject data) {
     setTotalData(finalData);
 }
 
-void AppManager::sortOverallConfirmedData(QByteArray data) {
+void AppManager::readOverallData() {
     qDebug() << "Sort Overall Confirmed Data";
 
-    if(!data.isEmpty()) {
-        QJsonParseError JsonParseError;
-        QJsonObject configData = QJsonDocument::fromJson(data, &JsonParseError).object();
+    QJsonParseError err;
+    QJsonObject configData = QJsonDocument::fromJson(readFilesData(OVERALL_DATA_FILENAME), &err).object();
+
+    if(!configData.isEmpty()) {
         QJsonArray dateArray;
         QJsonArray dataArray;
         QJsonArray dischargedArray;
@@ -132,82 +128,107 @@ void AppManager::sortOverallConfirmedData(QByteArray data) {
                 int totalCount = summaryObj["total"].toInt();
                 int dischargedCount= summaryObj["discharged"].toInt();
                 int deathsCount = summaryObj["deaths"].toInt();
+                QJsonArray regionalObj = dataObj["regional"].toArray();
 
                 dateArray.append(rawDate);
                 dataArray.append(totalCount);
                 dischargedArray.append(dischargedCount);
                 deceasedArray.append(deathsCount);
             }
+
+            finalData.insert("date",dateArray);
+            finalData.insert("total",dataArray);
+            finalData.insert("recovered",dischargedArray);
+            finalData.insert("deceased",deceasedArray);
+
+            setOverallConfirmedData(finalData);
         }
-
-        finalData.insert("date",dateArray);
-        finalData.insert("total",dataArray);
-        finalData.insert("recovered",dischargedArray);
-        finalData.insert("deceased",deceasedArray);
-
-        saveFilesData(finalData,OVERALL_DATA_FILENAME);
-        setOverallConfirmedData(finalData);
-    } else {
-        readOverallData();
     }
+}
+
+void AppManager::sortDailyData(QJsonObject data) {
+    qDebug() << "Sort Daily Data";
+
+    QJsonArray hitsArray = data["cases_time_series"].toArray();
+    QJsonArray confirmedArray;
+    QJsonArray recoveredArray;
+    QJsonArray deceasedArray;
+    QJsonArray dateArray;
+    QJsonObject dailyData;
+
+    for(int i=0;i<hitsArray.size()-1;i++) {
+        QJsonObject tempData = hitsArray.at(i).toObject();
+
+        confirmedArray.insert(confirmedArray.size(),tempData["dailyconfirmed"].toString().toInt());
+        recoveredArray.insert(recoveredArray.size(),tempData["dailyrecovered"].toString().toInt());
+        deceasedArray.insert(deceasedArray.size(),tempData["dailydeceased"].toString().toInt());
+        dateArray.insert(dateArray.size(),tempData["dateymd"].toString());
+    }
+
+    dailyData.insert("confirmed",confirmedArray);
+    dailyData.insert("recovered",recoveredArray);
+    dailyData.insert("deceased",deceasedArray);
+    dailyData.insert("date",dateArray);
+
+    setDailyData(dailyData);
 }
 
 void AppManager::sortOverallTestData() {
     qDebug() << "Sort Overall Test Data";
 
-    QFile file(QString("%1%2").arg(BASE_DIR,OVERALL_TEST_DATA_FILENAME));
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
     QJsonParseError JsonParseError;
-    QJsonObject configData = QJsonDocument::fromJson(file.readAll(), &JsonParseError).object()["data"].toObject();
-    QJsonObject finalData;
-    file.close();
-    finalData.insert("date",configData["day"]);
-    finalData.insert("totalTests",configData["totalSamplesTested"]);
-    finalData.insert("source",configData["source"]);
-    setOverallTestData(finalData);
+    QJsonObject configData = QJsonDocument::fromJson(readFilesData(OVERALL_TEST_DATA_FILENAME), &JsonParseError).object()["data"].toObject();
+    if(!configData.isEmpty()) {
+        QJsonObject finalData;
+        finalData.insert("date",configData["day"]);
+        finalData.insert("totalTests",configData["totalSamplesTested"]);
+        finalData.insert("source",configData["source"]);
+        setOverallTestData(finalData);
+    }
 }
 
 void AppManager::sortSatesActiveData() {
     qDebug() << "Sort States Active Data";
 
-    QFile file(QString("%1%2").arg(BASE_DIR,STATE_ACTIVE_DATA_FILENAME));
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
     QJsonParseError err;
-    QJsonObject configData = QJsonDocument::fromJson(file.readAll(), &err).object();
-    file.close();
-    QJsonArray hitsArray = configData["statewise"].toArray();
-    QJsonArray stateActiveDataArray;
-    QJsonArray finalData;
+    QJsonObject configData = QJsonDocument::fromJson(readFilesData(STATE_ACTIVE_DATA_FILENAME), &err).object();
 
-    sortTotalData(hitsArray[0].toObject());
+    if(!configData.isEmpty()) {
+        QJsonArray hitsArray = configData["statewise"].toArray();
+        QJsonArray stateActiveDataArray;
+        QJsonArray finalData;
 
-    for(int i=1;i < hitsArray.size() - 1;i++) {
-        QJsonObject dataObj = hitsArray[i].toObject();
-        QJsonObject tempStatesActiveDataObj;
-        QJsonObject tempStatesDataObj;
+        for(int i=1;i < hitsArray.size() - 1;i++) {
+            QJsonObject dataObj = hitsArray[i].toObject();
+            QJsonObject tempStatesActiveDataObj;
+            QJsonObject tempStatesDataObj;
 
-        tempStatesActiveDataObj.insert("stateName",dataObj["state"]);
-        tempStatesActiveDataObj.insert("activeCases",dataObj["active"]);
-        stateActiveDataArray.append(tempStatesActiveDataObj);
+            tempStatesActiveDataObj.insert("stateName",dataObj["state"]);
+            tempStatesActiveDataObj.insert("activeCases",dataObj["active"]);
+            stateActiveDataArray.append(tempStatesActiveDataObj);
 
-        tempStatesDataObj.insert("stateName",dataObj["state"]);
-        tempStatesDataObj.insert("activeCases",dataObj["active"]);
-        tempStatesDataObj.insert("confirmedCases",dataObj["confirmed"]);
-        tempStatesDataObj.insert("deceasedCases",dataObj["deaths"]);
-        tempStatesDataObj.insert("recoveredCases",dataObj["recovered"]);
-        tempStatesDataObj.insert("stateCode",dataObj["statecode"]);
+            tempStatesDataObj.insert("stateName",dataObj["state"]);
+            tempStatesDataObj.insert("activeCases",dataObj["active"]);
+            tempStatesDataObj.insert("confirmedCases",dataObj["confirmed"]);
+            tempStatesDataObj.insert("deceasedCases",dataObj["deaths"]);
+            tempStatesDataObj.insert("recoveredCases",dataObj["recovered"]);
+            tempStatesDataObj.insert("stateCode",dataObj["statecode"]);
 
-        tempStatesDataObj.insert("todayConfirmedCases",dataObj["deltaconfirmed"]);
-        tempStatesDataObj.insert("todayDeceasedCases",dataObj["deltadeaths"]);
-        tempStatesDataObj.insert("todayRecoveredCases",dataObj["deltarecovered"]);
+            tempStatesDataObj.insert("todayConfirmedCases",dataObj["deltaconfirmed"]);
+            tempStatesDataObj.insert("todayDeceasedCases",dataObj["deltadeaths"]);
+            tempStatesDataObj.insert("todayRecoveredCases",dataObj["deltarecovered"]);
 
-        tempStatesDataObj.insert("lastUpdatedTime",dataObj["lastupdatedtime"]);
+            tempStatesDataObj.insert("lastUpdatedTime",dataObj["lastupdatedtime"]);
 
-        finalData.append(tempStatesDataObj);
+            finalData.append(tempStatesDataObj);
+        }
+
+        sortDailyData(configData);
+        setStatesActiveData(stateActiveDataArray);
+        setStatesData(finalData);
+        loadAppData(hitsArray[0].toObject().size() > 0);
+        sortTotalData(hitsArray[0].toObject());
     }
-
-    setStatesActiveData(stateActiveDataArray);
-    setStatesData(finalData);
 }
 
 void AppManager::sortSatesDailyData(QString stateName) {
@@ -220,11 +241,8 @@ void AppManager::sortSatesDailyData(QString stateName) {
     QJsonArray dateArray;
     QJsonArray finalData;
 
-    QFile file(QString("%1%2").arg(BASE_DIR,STATE_DAILY_DATA_FILENAME));
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
     QJsonParseError JsonParseError;
-    QJsonObject configData = QJsonDocument::fromJson(file.readAll(), &JsonParseError).object();
-    file.close();
+    QJsonObject configData = QJsonDocument::fromJson(readFilesData(STATE_DAILY_DATA_FILENAME), &JsonParseError).object();
 
     if(!configData.isEmpty()) {
         QJsonArray hitsArray = configData["states_daily"].toArray();
@@ -260,54 +278,52 @@ void AppManager::sortSatesDailyData(QString stateName) {
                 qDebug() << "Invalid Search";
             }
         }
+
+        finalData.append(confirmedArray);
+        finalData.append(recoveredArray);
+        finalData.append(deceasedArray);
+        finalData.append(dateArray);
+
+        setCurrentStatesData(finalData);
     }
-
-    finalData.append(confirmedArray);
-    finalData.append(recoveredArray);
-    finalData.append(deceasedArray);
-    finalData.append(dateArray);
-
-    setCurrentStatesData(finalData);
 }
 
 void AppManager::sortStateDistrictData(QString state) {
     qDebug() << "Sort State District Data";
 
-    QFile file(QString("%1%2").arg(BASE_DIR,STATE_DISTRICT_DATA_FILENAME));
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
     QJsonParseError JsonParseError;
-    QJsonObject configData = QJsonDocument::fromJson(file.readAll(), &JsonParseError).object();
-    file.close();
+    QJsonObject configData = QJsonDocument::fromJson(readFilesData(STATE_DISTRICT_DATA_FILENAME)/*file.readAll()*/, &JsonParseError).object();
 
-    QJsonObject hitsArray = configData[state].toObject()["districtData"].toObject();
-    QJsonArray stateActiveDataArray;
-    QJsonArray finalData;
+    if(!configData.isEmpty()) {
+        QJsonObject hitsArray = configData[state].toObject()["districtData"].toObject();
+        QJsonArray stateActiveDataArray;
+        QJsonArray finalData;
 
-    QJsonObject::iterator i;
+        QJsonObject::iterator i;
 
-    for (i = hitsArray.begin(); i != hitsArray.end(); ++i) {
-        if (i.value().isObject()) {
-            finalData.append(i.key());
-        } else {
-            qDebug() << i.key() << i.value().toString();
+        for (i = hitsArray.begin(); i != hitsArray.end(); ++i) {
+            if (i.value().isObject()) {
+                finalData.append(i.key());
+            } else {
+                qDebug() << i.key() << i.value().toString();
+            }
         }
-    }
 
-    setStateDistricts(finalData);
+        setStateDistricts(finalData);
+    }
 }
 
 void AppManager::getCurrentStateTotalVaccinated(QString state) {
     qDebug() << "Get Current State Total Vaccinated" << state;
 
-    QFile file(QString("%1%2").arg(BASE_DIR,STATEWISE_VACCINE_DATA_FILENAME));
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
     QJsonParseError JsonParseError;
-    QJsonObject configData = QJsonDocument::fromJson(file.readAll(), &JsonParseError).object();
-    file.close();
+    QJsonObject configData = QJsonDocument::fromJson(readFilesData(STATEWISE_VACCINE_DATA_FILENAME), &JsonParseError).object();
 
-    QJsonArray finalData = configData[state].toArray();
+    if(!configData.isEmpty()) {
+        QJsonArray finalData = configData[state].toArray();
 
-    setCurrentStateVaccination(finalData.at(finalData.size()-1).toInt());
+        setCurrentStateVaccination(finalData.at(finalData.size()-1).toInt());
+    }
 }
 
 void AppManager::saveFilesData(QJsonObject data, QString fileName) {
@@ -330,4 +346,23 @@ void AppManager::refreshData() {
     requestOverallTestData();
     requestHospitalsListData();
     requestOverallConfirmedChart();
+}
+
+QJsonObject AppManager::getSpecificDateData(QString date) {
+    qDebug() << "Get Specific Date" << date;
+
+    QJsonParseError err;
+    QJsonObject configData = QJsonDocument::fromJson(readFilesData(OVERALL_DATA_FILENAME), &err).object();
+
+    if(!configData.isEmpty()) {
+        QJsonArray hitsArray = configData["data"].toArray();
+
+        for(int i=0;i<hitsArray.size();i++) {
+            if(hitsArray.at(i).toObject()["day"].toString() == date) {
+                qDebug() << "data found";
+                return hitsArray.at(i).toObject();
+            }
+        }
+    }
+    return {};
 }

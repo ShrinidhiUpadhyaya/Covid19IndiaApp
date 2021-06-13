@@ -29,9 +29,11 @@ Rectangle {
     Rectangle {
         width: parent.width - parent.width * 0.2
         height: 2
-        anchors.top: headerText.bottom
-        anchors.topMargin: root.height * 0.04
-        anchors.horizontalCenter: parent.horizontalCenter
+        anchors {
+            top: headerText.bottom
+            topMargin: root.height * 0.04
+            horizontalCenter: parent.horizontalCenter
+        }
     }
 
     DText {
@@ -48,9 +50,11 @@ Rectangle {
 
         font.pixelSize: AppThemes.setSize(6)
         color: AppThemes.whiteColor
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: buttonText.top
-        anchors.bottomMargin: root.height * 0.15 / 2
+        anchors {
+            horizontalCenter: parent.horizontalCenter
+            bottom: buttonText.top
+            bottomMargin: root.height * 0.15 / 2
+        }
     }
 
     DText {
@@ -58,8 +62,10 @@ Rectangle {
 
         font.pixelSize: AppThemes.setSize(6)
         color: AppThemes.whiteColor
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: root.height * 0.2 / 2
-        anchors.horizontalCenter: parent.horizontalCenter
+        anchors {
+            bottom: parent.bottom
+            bottomMargin: root.height * 0.2 / 2
+            horizontalCenter: parent.horizontalCenter
+        }
     }
 }

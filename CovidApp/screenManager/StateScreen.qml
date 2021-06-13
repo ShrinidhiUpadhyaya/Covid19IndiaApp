@@ -9,16 +9,19 @@ import "qrc:/components"
 AppScreen {
     id: root
 
-    property int index: stateIndex
+    property int index;
     property var chartData: appManager.currentStatesData[dayChartIndex]
     property var dateData: appManager.currentStatesData[3]
     property int dayChartIndex: 0
+
+    isOverlay: true
 
     ScrollView {
         width: parent.width
         height : parent.height
         contentWidth: mainColumnLayout.width
         contentHeight: mainColumnLayout.height
+        clip: true
 
         ColumnLayout{
             id: mainColumnLayout
@@ -33,16 +36,19 @@ AppScreen {
                 DText {
                     id: stateNameText
 
-                    anchors.left: parent.left
-                    anchors.right: hospitalIcon.left
+
                     text: appManager.statesData[root.index].stateName
                     font.pixelSize: lineCount > 1 ? AppThemes.setSize(5) : AppThemes.setSize(6)
                     height: parent.height
                     maximumLineCount: 2
                     wrapMode: Text.WordWrap
                     elide: Text.ElideNone
-                    anchors.top: parent.top
-                    anchors.topMargin: AppThemes.setSize(1)
+                    anchors {
+                        left: parent.left
+                        right: hospitalIcon.left
+                        top: parent.top
+                        topMargin: AppThemes.setSize(1)
+                    }
                 }
 
                 DIconButton {
@@ -51,12 +57,14 @@ AppScreen {
                     source: "qrc:/icons/hospitalIcon.png"
                     width: height
                     height: parent.height
-                    anchors.right: refreshIcon.left
-                    anchors.rightMargin: height / 2
-                    anchors.top: parent.top
-                    anchors.topMargin: AppThemes.setSize(1)
+                    anchors {
+                        right: refreshIcon.left
+                        rightMargin: height / 2
+                        top: parent.top
+                        topMargin: AppThemes.setSize(1)
+                    }
 
-                    onClicked: {
+                    onIconClicked: {
                         appManager.sortHospitalListData(stateNameText.text);
                         stackView.push("qrc:/screenManager/HospitalListScreen.qml");
                     }
@@ -68,11 +76,13 @@ AppScreen {
                     source: "qrc:/icons/refreshIcon.png"
                     width: height
                     height: parent.height
-                    anchors.right: parent.right
-                    anchors.top: parent.top
-                    anchors.topMargin: AppThemes.setSize(1)
+                    anchors {
+                        right: parent.right
+                        top: parent.top
+                        topMargin: AppThemes.setSize(1)
+                    }
 
-                    onClicked: {
+                    onIconClicked: {
                         appManager.refreshData();
                     }
                 }
@@ -87,7 +97,7 @@ AppScreen {
                 text: "Last Updated Time: " + appManager.statesData[root.index].lastUpdatedTime
             }
 
-            DCustomDataBox {
+            DDataBox {
                 Layout.fillHeight: false
                 Layout.fillWidth: true
                 Layout.preferredHeight: root.height * 0.3
@@ -101,7 +111,7 @@ AppScreen {
             Item {
                 Layout.fillHeight: false
                 Layout.fillWidth: true
-                Layout.preferredHeight: parent.height * 0.06
+                Layout.preferredHeight: AppThemes.setSize(12)
 
                 Rectangle {
                     width: parent.width - (parent.width * 0.1)
@@ -113,25 +123,29 @@ AppScreen {
                     DText {
                         text: appManager.currentStateVaccination;
                         color: AppThemes.vaccinationTextColor
-                        anchors.top: parent.top
-                        anchors.topMargin: parent.height * 0.1
                         font.pixelSize: AppThemes.setSize(6)
-                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors {
+                            top: parent.top
+                            topMargin: parent.height * 0.1
+                            horizontalCenter: parent.horizontalCenter
+                        }
                     }
 
                     DText {
                         text: "Vaccine Doses Administered"
                         color: AppThemes.vaccinationTextColor
-                        anchors.bottom: parent.bottom
-                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors {
+                            bottom: parent.bottom
+                            horizontalCenter: parent.horizontalCenter
+                        }
                     }
                 }
             }
 
-            DCustomTabBar {
+            DTabBar {
                 Layout.fillWidth: true
                 Layout.fillHeight: false
-                Layout.preferredHeight: parent.height * 0.05
+                Layout.preferredHeight: AppThemes.setSize(12)
                 values: ["Confirmed", "Recovered", "Deceased"]
 
                 onCurrentIndexChanged: {
@@ -140,7 +154,7 @@ AppScreen {
                 }
             }
 
-            DCustomBarChart {
+            DBarChart {
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 Layout.preferredHeight: root.height * 0.3
@@ -182,7 +196,7 @@ AppScreen {
                             leftText: appManager.stateDistricts[index]
                             leftT.font.underline: false
                             arrow: false
-                            color: districtListView.currentIndex === index ? AppThemes.currentHighlightColor : AppThemes.notSelectedColor
+                            color: districtListView.currentIndex === index ? AppThemes.highlightColor : AppThemes.notSelectedColor
 
                             onButtonClicked: {
                                 districtListView.currentIndex = index;
@@ -194,11 +208,13 @@ AppScreen {
                     Item {
                         width: parent.width / 2
                         height: parent.height - (parent.height * 0.1)
-                        anchors.left: districtListView.right
-                        anchors.verticalCenter: parent.verticalCenter
+                        anchors {
+                            left: districtListView.right
+                            verticalCenter: parent.verticalCenter
+                        }
 
-                        DCustomDataBox {
-                           anchors.fill: parent
+                        DDataBox {
+                            anchors.fill: parent
                             count: 4
                             headerTextData: ["Confirmed", "Active", "Recovered", "Deceased"]
                             minorTextData: [appManager.currentDistrictData["deltaConfirmed"],"",appManager.currentDistrictData["deltaRecovered"], appManager.currentDistrictData["deltaDeceased"]]

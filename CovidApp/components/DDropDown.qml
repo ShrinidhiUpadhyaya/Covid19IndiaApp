@@ -25,8 +25,10 @@ Rectangle {
 
         width: parent.width - AppThemes.setSize(8)
         height: AppThemes.setSize(4)
-        anchors.top: parent.top
-        anchors.topMargin: root.expanded ?  AppThemes.setSize(3) : (parent.height/2) - (height / 2)
+        anchors {
+            top: parent.top
+            topMargin: root.expanded ?  AppThemes.setSize(3) : (parent.height/2) - (height / 2)
+        }
         font.pixelSize: root.fontSize
         wrapMode: Text.WordWrap
         elide: Text.ElideRight
@@ -64,18 +66,20 @@ Rectangle {
                 text: txt.text
 
                 DIconButton {
-                    anchors.right: parent.right
-                    anchors.rightMargin: AppThemes.setSize(8);
-                    anchors.top: parent.bottom
-                    anchors.topMargin: -AppThemes.setSize(3);
                     width: AppThemes.setSize(8);
                     height: width
                     source: "qrc:/icons/browserIcon.png"
                     z: 4
+                    anchors {
+                        right: parent.right
+                        rightMargin: AppThemes.setSize(8);
+                        top: parent.bottom
+                        topMargin: -AppThemes.setSize(3);
+                    }
 
                     property string searchString: "https://www.google.com/search?q=" + txt.text
 
-                    onClicked: {
+                    onIconClicked: {
                         Qt.openUrlExternally(searchString);
                     }
                 }
@@ -163,10 +167,13 @@ Rectangle {
 
         text: ">"
         y: txt.y - 2
-        anchors.right: parent.right
-        anchors.rightMargin: AppThemes.setSize(3);
         font.pixelSize: AppThemes.setSize(6)
         rotation: root.expanded ? -90 : 90
+        anchors {
+            right: parent.right
+            rightMargin: AppThemes.setSize(3);
+        }
+
 
         Behavior on rotation {
             SmoothedAnimation { duration: 150 }

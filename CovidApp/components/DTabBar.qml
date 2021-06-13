@@ -6,16 +6,23 @@ import AppThemes 1.0
 Item {
     id: root
 
+    property alias rows: layout.rows
+    property alias columns: layout.columns
+
     property var values: []
 
     property string textColor: AppThemes.greytTextColor
 
     property int currentIndex: 0
 
-    RowLayout {
+    GridLayout {
+        id: layout
+
         height: parent.height
         width: parent.width - (parent.width * 0.1)
         anchors.centerIn: parent
+        rows: 1
+        columns: 3
 
         Repeater {
             model: root.values
@@ -25,7 +32,7 @@ Item {
 
                 Layout.fillHeight: true
                 Layout.fillWidth: true
-                color: root.currentIndex === index ? AppThemes.currentHighlightColor : AppThemes.whiteSmokeColorCode
+                color: root.currentIndex === index ? AppThemes.highlightColor : AppThemes.whiteSmokeColorCode
                 radius: 4
 
                 DText {
